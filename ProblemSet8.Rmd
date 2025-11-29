@@ -1,0 +1,414 @@
+---
+title: "ProblemSet8"
+author: "Johnny Magdaleno"
+date: "2025-03-08"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### PROBLEM 1. Self-management.
+
+[*Question A. Write an informative summary describing features of the study participants with respect to the variables age, sex, and type of chronic disease. Reference appropriate numerical and graphical summaries as needed. No more than five sentences.*]{.underline}
+
+**R code:**
+
+```{r}
+load("/Users/jm/Desktop/MPH/Spring 25 - Biostatistics in Public Health/Datasets/self_manage.Rdata")
+
+table(self.manage$sex)
+summary(self.manage$age)
+self.manage.male = subset(self.manage, self.manage$sex == "male")
+self.manage.female = subset(self.manage, self.manage$sex == "female")
+summary(self.manage.male$age)
+summary(self.manage.female$age)
+table(self.manage$disease)
+plot(self.manage$age ~ self.manage$sex)
+prop.table(table(self.manage$disease, self.manage$sex), 2)
+hist(self.manage$age)
+```
+
+**Answer:** The sample has a mean and median age of about 70 years old for males as well as females. Sixty percent (60%) of the sample is male. Type 2 diabetes is the most common disease, followed by COPD, chronic heart failure and chronic renal disease. Females in the sample experience a higher rate of type 2 diabetes than males, while males experience a higher rate of COPD and chronic renal disease than females.
+
+[*Question B.The main measurement of interest is activation for self-management. Describe the distribution of activation for self-management within the study participants, both in terms of PAM-13 score and PAM level. Reference appropriate numerical and graphical summaries as needed. Five sentence maximum.*]{.underline}
+
+**R code:**
+
+```{r}
+hist(self.manage$pam.score)
+plot(self.manage$pam.cat)
+table(self.manage$pam.cat)
+prop.table(table(self.manage$pam.cat, self.manage$sex), 2)
+prop.table(table(self.manage$pam.cat, self.manage$disease), 2)
+```
+
+**Answer:** The distribution of PAM scores is bimodal, therefore it is not normally distributed. The predominant PAM-13 score level of the sample is 3, followed by level 2, level 1 and then level 4. High level 3 frequency indicates most of the sample participants are "goal-oriented and actively working to achieve best practice behaviors." Men experience a higher rate of level 2, level 3 and level 4 PAM scores than women, while women experience a higher rate of level 1 scores level than men. Patients with chronic renal disease experience the highest rate of level 1 scores; heart failure, the highest rate of level 2 scores; diabetes, the highest rate of level 3 scores; and COPD, the highest rate of level 4 scores.
+
+[*Question C. Explore the relationship between activation for self-management and disease type.\
+C. i. Create a plot to graphically show the association between disease type and PAM-13 score. Describe what you see.*]{.underline}
+
+**R code:**
+
+```{r}
+plot(self.manage$disease, self.manage$pam.score, xlab = "Disease type", ylab = "PAM Score")
+```
+
+**Answer:** Generally speaking, patients with type 2 diabetes appear to produce the highest average PAM scores as indicated by the high median relative to the other three data types. The type 2 diabetes patient group also has the largest amount of upper outliers. COPD and HF had similar median scores, and CRD had the lowest median scores and overall score range.
+
+[*\
+C. ii. Create a summary that shows how the distribution of PAM level differs between disease type. Describe what you see.*]{.underline}
+
+**R code:**
+
+```{r}
+prop.table(table(self.manage$pam.cat, self.manage$disease), 2)
+plot(self.manage$disease, self.manage$pam.cat, xlab = "Disease type", ylab = "PAM Category")
+```
+
+**Answer:** The summary graphic and table both show that CRD and HF patients experience the greatest proportions of level 1 PAM scores. HF and COPD patients experience the greatest proportions of level 2 PAM scores. DM-II and COPD patients experience the greatest proportions of both level 3 and level 4 scores.
+
+[*C. iii. Do you find the summary from part i. or the summary from part ii. more informative with regards to understanding the relationship between activation for self-management and disease type? Explain your answer.*]{.underline}
+
+**Answer:** I find the summary from part ii. more informative. From a public health standpoint, I am interested in understanding this relationship with the goal of identifying patients with disease types that are disproportionately represented in the level 1 and level 2 score groups, indicating low self-management. The graphic in part ii. clearly shows the largest proportions of patients in the level 1 score category are those diagnosed with HF or CRD. This will help me understand which patient groups need support for improving self-management.
+
+[*Question D. Is PAM-13 score associated with perceived level of social support?*]{.underline}
+
+[*D. i. Using graphical and numerical methods, investigate this question separately within disease types. Summarize your findings, with particular focus on whether the association between PAM-13 score and perceived level of social support seems to differ between types of chronic disease.*]{.underline}
+
+**R code:**
+
+```{r}
+self.manage.dmii = subset(self.manage, self.manage$disease == "DM-II")
+self.manage.copd = subset(self.manage, self.manage$disease == "COPD")
+self.manage.hf = subset(self.manage, self.manage$disease == "HF")
+self.manage.crd = subset(self.manage, self.manage$disease == "CRD")
+options(scipen=0)
+
+#Plot, analysis for DM-II.
+plot(self.manage.dmii$pam.score ~ self.manage.dmii$supp.total)
+abline(lm(self.manage.dmii$pam.score ~ self.manage.dmii$supp.total))
+dmii.pam.supp.model = lm(self.manage.dmii$pam.score ~ self.manage.dmii$supp.total)
+qqnorm(resid(dmii.pam.supp.model), main = "DM-II PAM Score by Social Support Q-Q Plot")
+qqline(resid(dmii.pam.supp.model))
+coef(summary(dmii.pam.supp.model))
+format(2.238397e-08, scientific = FALSE)
+summary(dmii.pam.supp.model)$r.squared
+
+#Plot, analysis for COPD. 
+plot(self.manage.copd$pam.score ~ self.manage.copd$supp.total)
+abline(lm(self.manage.copd$pam.score ~ self.manage.copd$supp.total))
+copd.pam.supp.model = lm(self.manage.copd$pam.score ~ self.manage.copd$supp.total)
+qqnorm(resid(copd.pam.supp.model), main = "COPD PAM Score by Social Support Q-Q Plot")
+qqline(resid(copd.pam.supp.model))
+coef(summary(copd.pam.supp.model))
+format(1.247338e-01, scientific = FALSE)
+summary(copd.pam.supp.model)$r.squared
+
+#Plot, analysis for HF. 
+plot(self.manage.hf$pam.score ~ self.manage.hf$supp.total)
+abline(lm(self.manage.hf$pam.score ~ self.manage.hf$supp.total))
+hf.pam.supp.model = lm(self.manage.hf$pam.score ~ self.manage.hf$supp.total)
+qqnorm(resid(hf.pam.supp.model), main = "HF PAM Score by Social Support Q-Q Plot")
+qqline(resid(hf.pam.supp.model))
+coef(summary(hf.pam.supp.model))
+format(7.241739e-04, scientific = FALSE)
+summary(hf.pam.supp.model)$r.squared
+
+#Plot, analsysis for CRD. 
+plot(self.manage.crd$pam.score ~ self.manage.crd$supp.total)
+abline(lm(self.manage.crd$pam.score ~ self.manage.crd$supp.total))
+crd.pam.supp.model = lm(self.manage.crd$pam.score ~ self.manage.crd$supp.total)
+qqnorm(resid(crd.pam.supp.model), main = "CRD PAM Score by Social Support Q-Q Plot")
+qqline(resid(crd.pam.supp.model))
+coef(summary(crd.pam.supp.model))
+format(3.958205e-02, scientific = FALSE)
+summary(crd.pam.supp.model)$r.squared
+
+```
+
+**Answer:** All distributions analyzed for this answer are approximately normal, according to Q-Q plots. Variation is also consistent around the plotted model lines.
+
+For every disease type except COPD, PAM scores increase as perceived social support increases. At a 95% confidence level, P-values for all disease types indicate statistical significance except COPD, in which the relationship has a p-value of 0.12.
+
+The strongest relationships between the two variables are observed among DM-II patients and HF patients. The R-squared scores for DM-II patients and HF patients are .07 and .05, respectively, and the slope coefficients (increase in PAM score for each 1-point increase in perceived social support score) are 0.2 and 0.17, respectively.
+
+CRD and COPD patient data showed the weakest relationships between perceived social support and PAM scores. The R-squared scores for CRD patients and COPD patients are .02 and .01, respectively, and the slope coefficients are 0.09 and 0.05, respectively.
+
+While the R-squared scores are weak among all patient types, the lowest R-squared score and overall strongest evidence of no association is found among COPD patients.
+
+[*D. ii. Do these data suggests that an increase in perceived social support leads to better capacity for self-management? Explain your answer in no more than five sentences.*]{.underline}
+
+**Answer:** The relationship between both variables (R\^2 scores) observed in each disease is relatively weak, suggesting there may be other variables worth analyzing if the goal is to identify significant contributors to increased PAM score. Additionally, there may be confounding by one or more socio-economic variables that contribute to one's ability to self-manage and one's positive outlook on their social support network. This could be education level, depression or anxiety level or financial security. In short, this analysis isn't enough to conclude that perceived social support on its own contributes to higher PAM scores.
+
+[*Question E. Investigate the relationship between PAM-13 score and educational level.\
+E. i. With reference to appropriate numerical and graphical summaries, describe the association between PAM-13 score and educational level.*]{.underline}
+
+**R code:**
+
+```{r}
+load("/Users/jm/Desktop/MPH/Spring 25 - Biostatistics in Public Health/Datasets/self_manage.Rdata")
+
+#Creating data frame of PAM score and education level, to account for NAs.
+pam.edu = data.frame(self.manage$pam.score, self.manage$edu)
+pam.edu.narm = na.omit(pam.edu)
+
+#Analysis
+plot(pam.edu.narm$self.manage.pam.score ~ pam.edu.narm$self.manage.edu)
+abline(lm(pam.edu.narm$self.manage.pam.score ~ pam.edu.narm$self.manage.edu))
+tapply(pam.edu.narm$self.manage.pam.score, pam.edu.narm$self.manage.edu, mean)
+mean(pam.edu.narm$self.manage.pam.score)
+lm(pam.edu.narm$self.manage.pam.score ~ pam.edu.narm$self.manage.edu)
+coef(summary(lm(pam.edu.narm$self.manage.pam.score ~ pam.edu.narm$self.manage.edu)))
+summary(lm(pam.edu.narm$self.manage.pam.score ~ pam.edu.narm$self.manage.edu))
+confint(lm(pam.edu.narm$self.manage.pam.score ~ pam.edu.narm$self.manage.edu), level = 0.95)
+format(6.034e-06, scientific = FALSE)
+summary(lm(pam.edu.narm$self.manage.pam.score ~ pam.edu.narm$self.manage.edu))$r.squared
+
+```
+
+**Answer:** There appears to be a relationship between education level and PAM score among patients with higher education levels, but not for patients with lower or middle education levels. The p-value for the hypothesis test of this relationship among highly educated patients is less than .01, indicating high statistical significance. The F-statistic for the overall analysis is 12.15 with a p-value of less than .01, indicating that at least one of the education variables has a statistically significant relationship with PAM score. The model equation produces the highest slope for highly educated patients, with an increase of 4.74 PAM score points compared to lower education status. It is also worth noting that only patients with high education have a mean PAM score higher than the overall sample mean PAM score, while patients with lower to medium education have mean PAM scores less than the sample mean PAM score.
+
+[\
+E. ii. Propose one possible explanation for the trends observed in part i. Limit your answer to no more than five sentences.]{.underline}
+
+**Answer:** High level of education may result in greater awareness of the importance of self-care and the ability to comprehend and prepare for long-term disease outcomes. It also may be associated with an overall higher socio-economic status, which typically means more access to resources (including medical) and support networks and therefore better health outcomes overall. The positive relationship between high education level and better health outcomes has been extensively documented in scientific literature.
+
+[*Question F. Investigate the relationship between PAM level, age, and education.*]{.underline}
+
+[*F. i. Create a graphical summary that shows the association between age and PAM level.\
+Describe what you see.*]{.underline}
+
+```{r}
+summary(self.manage$age)
+summary(self.manage$pam.cat)
+cat.age.narm = na.omit(data.frame(self.manage$age, self.manage$pam.cat))
+boxplot(cat.age.narm$self.manage.age ~ cat.age.narm$self.manage.pam.cat)
+```
+
+**Answer:** Based on the boxplot produced above, it looks like PAM score category increases as age decreases up until level 3, where there appears to be little difference between level 3 and level 4. The median age for level 1 scores looks higher than the median age for level 2 scores, and the median age for level 2 scores looks higher than the median age for level 3 scores. The median age for level 4 scores, however, looks about the same as the median age for level 3 scores. The interquartile ranges for age look approximately similar for each PAM score category.
+
+[*\
+F. ii. Create graphical summaries that show the association between age and PAM level when\
+comparing individuals of the same educational level. Describe what you see.*]{.underline}
+
+```{r}
+#Creating three dataframe subsets for each education category.
+self.manage.edu.lower = subset(self.manage, self.manage$edu == "lower")
+self.manage.edu.middle = subset(self.manage, self.manage$edu == "middle")
+self.manage.edu.high = subset(self.manage, self.manage$edu == "high")
+
+cat.age.lowered.narm = na.omit(data.frame(self.manage.edu.lower$age, self.manage.edu.lower$pam.cat, self.manage.edu.lower$edu))
+cat.age.middleed.narm = na.omit(data.frame(self.manage.edu.middle$age, self.manage.edu.middle$pam.cat, self.manage.edu.middle$edu))
+cat.age.highed.narm = na.omit(data.frame(self.manage.edu.high$age, self.manage.edu.high$pam.cat, self.manage.edu.high$edu))
+
+#Creating graphical summaries. 
+boxplot(cat.age.lowered.narm$self.manage.edu.lower.age ~ cat.age.lowered.narm$self.manage.edu.lower.pam.cat)
+boxplot(cat.age.middleed.narm$self.manage.edu.middle.age ~ cat.age.middleed.narm$self.manage.edu.middle.pam.cat)
+boxplot(cat.age.highed.narm$self.manage.edu.high.age ~ cat.age.highed.narm$self.manage.edu.high.pam.cat)
+```
+
+**Answer:** When stratified by education level, the relationship between age and PAM score level looks different than analysis of all education levels.
+
+For lower education patients, there appears to be a very minor increase in PAM level as age increases but it may not be statistically significant. Among PAM score groups, the minimum value for age increases as PAM score level increases. The median age for level 2 and level 3 are similar, and appear to be higher than the median age for level 1 and level 4.
+
+The strongest linear relationship looks like it may be observed in the middle education patients, where there appears to be a clear slope indicating PAM score categories worsen as age increases.
+
+There appears to be a negatively correlated relationship between age and PAM score category for high education as well, as the median age and interquartile ranges for age look like they decrease as PAM score category increases - that is, up until PAM level 4, when the median age jumps up again and the interquartile range of age increases. This relationship looks like may not be as strong as that observed in the middle education category.
+
+[*\
+F. iii. A news outlet is interested in reporting on the study results. You have been asked to\
+address the following question: “Do these data suggest that older individuals tend to\
+have a lower level of activation for self-management?” Address the question with an answer that is understandable to non-statisticians.*]{.underline}
+
+**Answer:** While the graphs suggest older individuals with middle and high education levels may have lower levels of activation for self-management, that doesn't appear to be as true for individuals with lower levels of education. The graph that looks at the entire population lumping in all education levels also seems to show higher age equals lower levels of activation for self-management, more rigorous analysis needs to be performed on these data to understand if those relationships are significant. In any case, even if they are significant, this isn't enough evidence to definitively say that, yes, older individuals have lower levels. More studies should be performed on different populations to see if the same results are found.
+
+[*Question G. Explore the relationship between depression and activation for self-management.\
+G. i. From these data, compute the relative risk of being classified as PAM Level 1 comparing\
+individuals considered to have a depressive disorder to those not considered to have a\
+depressive disorder.*]{.underline}
+
+**R code:**
+
+```{r}
+depress.pamcat = na.omit(data.frame(self.manage$hads.depress == c(0:10), self.manage$pam.cat))
+depress.pamcat.table = table(depress.pamcat$self.manage.hads.depress....c.0.10., depress.pamcat$self.manage.pam.cat)
+dimnames(depress.pamcat.table) = list("Depression state" = c("Not depressed", "Depressed"), "PAM category" = c("Level 1", "Level 2", "Level 3", "Level 4"))
+addmargins(depress.pamcat.table)
+
+not.depressed.lvl1 = 274/1027
+depressed.lvl1 = 27/98
+depressed.lvl1/not.depressed.lvl1
+```
+
+**Answer:** The relative risk of obtaining a level 1 PAM score category is 1.03 when comparing patients with a depressive order to patients without a depressive order. This shows that there may be a slightly increased risk of scoring within level 1 if a patient has a depressive order.
+
+[*\
+G. ii. Calculate the difference in mean PAM-13 score between individuals classified as having\
+a depressive disorder versus those not classified as having a depressive disorder. In one\
+sentence, report the calculation; use phrasing that is informative for a general audience.*]{.underline}
+
+**R code:**
+
+```{r}
+depress.pamscore = na.omit(data.frame(self.manage$hads.depress == c(0:10), self.manage$pam.score))
+tapply(depress.pamscore$self.manage.pam.score, depress.pamscore$self.manage.hads.depress....c.0.10., mean)
+```
+
+**Answer:** On average, patients in the sample with depressive disorder scored 1.6 points lower on the PAM-13 questionnaire than patients without depressive disorder.
+
+[*\
+G. iii. There are some individuals missing responses for the HADS questionnaire. Does this\
+missingness represent a potential source of bias for the calculations in parts i. and ii?\
+Explain your answer.*]{.underline}
+
+**Answer:** In my analysis I removed any patients with missing responses in either PAM-13 score or HADS score. But without accounting for missing values, yes, they would represent a potential source of bias because missing values produce a less accurate calculation of sample statistics.
+
+#### PROBLEM 2: Resilience.
+
+[*Question A. Briefly summarize features of the study participants with respect to the variables age,\
+sex, and train. Reference appropriate graphical and numerical summaries as needed.*]{.underline}
+
+**R code:**
+
+```{r}
+load("/Users/jm/Desktop/MPH/Spring 25 - Biostatistics in Public Health/Datasets/resilience.rdata")
+
+summary(resilience$age)
+summary(resilience$sex)
+summary(resilience$train)
+resilience.male = subset(resilience, resilience$sex == "male")
+resilience.female = subset(resilience, resilience$sex == "female")
+summary(resilience.male$age)
+summary(resilience.female$age)
+table(resilience$sex, resilience$train)
+plot(resilience$age ~ resilience$train)
+prop.table(table(resilience$train, resilience$sex), 2)
+hist(resilience$age)
+```
+
+**Answer:** The sample is about 53% female and 47% male. Males on average tend to be very slightly older than females, with a median of 23 years (compared to 22 years) and a mean of 22.98 years (compared to 22.57 years). A greater proportion of males are in clinical and residency stages of training, while a greater proportion of females are in the pre-clinical stage. Unsurprisingly, sample age appears to increase from pre-clinical to clinical to residency training stages.
+
+\
+[*Question B. Participants were asked to rate their overall quality of life and their medical school\
+quality of life, each on a 0-10 point scale.*]{.underline}\
+[*B. i. Create a plot illustrating the difference between perception of overall QoL and percep-\
+tion of MSQoL. Describe what you see.*]{.underline}
+
+**R code:**
+
+```{r}
+resilience$qol.difference <- resilience$qol.medical - resilience$qol.overall
+hist(resilience$qol.difference)
+boxplot(resilience$qol.difference)
+```
+
+**Answer:** A histogram displaying the frequency of differences between medical school QoL and overall QoL shows that overall QoL tends to be greater than medical school QoL. This is illustrated by the high frequency of negative differences when data are paired and the calculation of (medical QoL - overall QoL) is performed.
+
+[*\
+B. ii. Conduct a formal statistical comparison of overall QoL score and MSQoL score. Sum-\
+marize your findings.*]{.underline}
+
+**R code:**
+
+```{r}
+qol.model = t.test(resilience$qol.medical, resilience$qol.overall, alternative = "two.sided", paired = TRUE)
+qol.model
+qqnorm(resilience$qol.difference)
+qqline(resilience$qol.difference)
+hist(resilience$qol.difference)
+```
+
+**Answer:** For this question, a t-test of two paired samples was performed to identify if the population mean of differences between the two scores observed in the sample is equal to 0.
+
+The observations are assumed to be independent given that each participant in the sample is unique. The distribution of differences roughly follows a normal distribution, according to analysis with a histogram plot and a Q-Q plot. Students for the sample were randomly selected from each school, thus it is a random sample.
+
+The t-test identified a t-statistic of -37.094 with a p-value significantly smaller than .01, indicating highly significant evidence that the population mean difference between overall QoL and medical QoL among medical students is not 0. The mean sample difference is -1.35, with a population 95% CI of (-1.43, -1.28), indicating that medical students may perceive a drop in life quality because of the demands of medical school when compared to their lives overall.
+
+\
+[*Question C. Investigate the relationship between resilience and level of training.\
+C. i. Prior to conducting any analysis, comment briefly on whether you think there may or\
+may not be an association between resilience and level of training, and explain your\
+reasoning. Limit your answer to at most five sentences.*]{.underline}
+
+**Answer:** I would assume that there is a positive relationship between resilience and level of training. It would seem that one would need to be more resilient to be able to effectively advance in medical training. On the other hand, it could also be that more advanced training teaches students stronger resiliency skills.
+
+[*\
+C. ii. Formally assess whether there is evidence of an association between resilience and level\
+of training. Summarize your findings.*]{.underline}
+
+**R code:**
+
+```{r}
+resilience$res.numeric <- as.numeric(resilience$res)
+resilience$train.numeric <- as.numeric(resilience$train)
+plot(resilience$res.numeric ~ resilience$train)
+summary(lm(resilience$res.numeric ~ resilience$train))
+confint(lm(resilience$res.numeric ~ resilience$train), level = 0.95)
+qqnorm(resid(lm(resilience$res.numeric ~ resilience$train)))
+qqline(resid(lm(resilience$res.numeric ~ resilience$train)))
+hist(resid(lm(resilience$res.numeric ~ resilience$train)))
+```
+
+**Answer:** There does not appear to be a relationship between resiliency and training. The f-statistic for the model is 1.358 with a p-value of 0.26, indicating no significant evidence that resilience scores are dependent on any of the training levels. The p-values for the relationship between clinical training level and residency training level are 0.117 and 0.227, respectively, indicating there is not significant evidence to reject the null hypothesis of a population slope of 0. The 95% confidence intervals all include 0 within their margin of error, further confirming a lack of evidence to reject the null hypothesis.\
+
+[*Question D. Investigate the relationship between resilience and severity of depressive symptoms.\
+D. i. Create a plot illustrating the relationship between resilience and depressive symptoms.\
+Describe what you see.*]{.underline}
+
+**R code:**
+
+```{r}
+plot(resilience$res, resilience$bdi)
+abline(lm(resilience$bdi ~ resilience$res))
+```
+
+**Answer:** A boxplot of the relationship between resiliency and BDI scores shows a clear linear relationship in which BDI scores decrease as resiliency increases.
+
+**\
+**[*D. ii. Conduct a formal analysis of the relationship between resilience and depressive symp-\
+toms. Summarize your findings. You may proceed with the analysis method you choose\
+even if the assumptions do not seem to be reasonably satisfied; i.e., it is not necessary to\
+check assumptions for this sub-question.*]{.underline}
+
+**R code:**
+
+```{r}
+summary(lm(resilience$bdi ~ resilience$res))
+confint(lm(resilience$bdi ~ resilience$res), level = 0.95)
+```
+
+**Answer:** Linear regression analysis shows that there is a clear relationship between resiliency and BDI score. More specifically, BDI and resiliency are negatively correlated, where every increase in resiliency level corresponds with a significant decrease in BDI.
+
+The p-value of the test for every resiliency category is significantly less than 0.01, indicating strong evidence to reject the null hypothesis that the population slope for any of the linear models is 0. The F-statistic is 118.5 with a p-value of less than 0.01, confirming that BDI is dependent on at least one of the categorical variables of resiliency level. None of the confidence intervals (95%) for any of the resiliency category slopes include 0, confirming the hypothesis test findings.
+
+\
+[*Question E. Investigate the association between resilience and quality of life as measured by the\
+psychological health domain of the WHOQOL.\
+E. i. Without adjusting for any potential confounders, fit a model estimating the association\
+between resilience and WHOQOL score in the psychological health domain. Describe\
+the nature of the association.*]{.underline}
+
+**R code:**
+
+```{r}
+summary(lm(resilience$whoqol.psych ~ resilience$res))
+plot(resilience$whoqol.psych ~ resilience$res)
+confint(lm(resilience$whoqol.psych ~ resilience$res), level = 0.95)
+```
+
+**Answer:** There is significant statistical evidence that resiliency and WHOQOL psychological are associated. More specifically, they are positively associated, in that increases in resiliency levels are associated with increases in WHOQOL psychological score (higher WHOQOL psychological score indicates higher quality of life).
+
+The F-statistic of the model analysis is 161.9 with a p-value of less than .01, indicating that WHOQOL psychological is dependent in at least one of the resiliency level analyses. The p-value for the hypothesis test among each of the resiliency levels is less than .001, indicating there is enough evidence to reject the null hypothesis of a slope parameter of 0 in any of the model equations.
+
+[*\
+E. ii. Is there evidence that resilience overall is a useful variable for predicting WHOQOL\
+score in the psychological health domain? Explain your answer.*]{.underline}
+
+**Answer:** Yes, there is evidence that resilience overall may be a useful variable for predicting WHOQOL. The statistical significance of the hypothesis test findings are strong at every resiliency level. None of the confidence intervals calculated for the resiliency categories includes 0, confirming the hypothesis test findings. There is a clear visual trend observed when plotting the data in boxplots. However, it is worth analyzing whether other variables are playing a role in this relationship. Socio-economic variables such as income (not recorded in this sample) may influence medical students' resiliency and WHOQOL score, for example.
+
+[*\
+E. iii. Report and interpret the model R2 for the model fit in part i.*]{.underline}
+
+**Answer:** The multiple R2 for the model in part i. is 0.376, indicating that 37.6% of the variation in WHOQOL psychological scores are explained by resiliency levels. The adjusted R-squared is 0.374. These scores suggest that it may be worth analyzing additional independent variables (in new models) to find variables that explain a larger percent of the variation in WHOQOL psychological scores.
